@@ -24,6 +24,14 @@ namespace Services.Services
             _profileRepository = profileRepository;
         }
 
-        
+        public async Task<WebResponseContent> Login(LoginInfo loginInfo)
+        {
+            return await _profileRepository.Login(loginInfo);
+        }
+
+        public async Task<WebResponseContent> Register(RegisterRequest registerData)
+        {
+            return await _profileRepository.Register(registerData);
+        }
     }
 }

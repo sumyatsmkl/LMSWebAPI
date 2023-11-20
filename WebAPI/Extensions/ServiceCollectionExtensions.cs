@@ -25,6 +25,7 @@ namespace WebAPI.Extensions
 
             
             services.AddScoped<ISystemCodeValueService, SystemCodeValueService>();
+            services.AddScoped<IProfileService, ProfileService>();
 
             return services;
         }

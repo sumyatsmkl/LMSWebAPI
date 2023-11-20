@@ -40,5 +40,9 @@ namespace Domain.Enums
         Management = 4
     }
 
-   
+    public enum CommonStatus
+    {
+        Inactive = 0,
+        Active = 1
+    }
 }
