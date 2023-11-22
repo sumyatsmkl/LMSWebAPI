@@ -33,9 +33,10 @@ namespace Domain.Utilities.Response
         {
             get { return new WebResponseContent(); }
         }
-        public WebResponseContent OK(string message = null, object data = null)
+        public WebResponseContent OK(string statusCode,string message = null, object data = null)
         {
             this.Status = true;
+            this.Code = statusCode;
             this.Message = message;
             this.Data = data;
             return this;
@@ -47,6 +48,14 @@ namespace Domain.Utilities.Response
         public WebResponseContent Error(string message = null)
         {
             this.Status = false;
+            this.Message = message;
+            return this;
+        }
+
+        public WebResponseContent Warning(string code, string message = null)
+        {
+            this.Status = false;
+            this.Code = code;
             this.Message = message;
             return this;
         }

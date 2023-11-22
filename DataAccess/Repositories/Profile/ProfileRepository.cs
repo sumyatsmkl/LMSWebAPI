@@ -116,11 +116,12 @@ namespace DataAccess.Repositories.Profile
                 TProfileAccount profileResult = await _dbContext.TProfileAccounts.Where(x => x.UserName == loginInfo.UserName).FirstOrDefaultAsync();
 
                 if (profileResult == null)
-                    return webResponse.Error("User name does not exist.");           
+                    return webResponse.Warning(ResponseCode.Login_UserNameNotFound.ToString(), "User name does not exist!");
+                          
 
                 if (!HashPasswordHelper.VerifyPassword(loginInfo.Password, profileResult.Password))
                 {
-                    return webResponse.Error("Incorrect password.");
+                    return webResponse.Warning(ResponseCode.Login_IncorrectPassword.ToString(), "Incorrect password!");
                 }
 
                 //string token = JwtHelper.IssueJwt(new UserInfo()
@@ -134,8 +135,8 @@ namespace DataAccess.Repositories.Profile
                 //repository.Update(user, x => x.Token, true);
                 //UserContext.Current.LogOut(user.User_Id);
                 //loginInfo.Password = string.Empty;
-
-                return webResponse.OK("Login Successfully!");
+               
+                return webResponse.OK(Convert.ToInt32(ResponseCode.Login_Success).ToString(), "Login Successfully!!");
             }
             catch (Exception ex)
             {
@@ -162,17 +163,17 @@ namespace DataAccess.Repositories.Profile
 
 
                 if (IsUserNameExist(registerData.UserName).Result)
-                    return webResponse.Error("User name already exists");
+                    return webResponse.Warning(ResponseCode.Register_DuplicateUserName.ToString(),"User name alrady exists!");
 
                 if (IsEmailExist(registerData.Email).Result)
-                    return webResponse.Error("Email already exists");
+                    return webResponse.Warning(ResponseCode.Register_DuplicateEmail.ToString(),"This email is already registered!");
 
                 if (IsIDNoExist(registerData.IdNo).Result)
-                    return webResponse.Error("ID number already exists");
+                    return webResponse.Warning(ResponseCode.Register_DuplicateIDNo.ToString(),"ID number already exists!");
 
                 var passMessage = HashPasswordHelper.CheckPasswordStrength(registerData.Password);
                 if (!string.IsNullOrEmpty(passMessage))
-                    return webResponse.Error(passMessage.ToString());
+                    return webResponse.Warning(ResponseCode.Register_InvalidPasswordStrength.ToString(), passMessage.ToString());
 
                 TProfile profile = new TProfile();
                 profile.ProfileId = Guid.NewGuid();
@@ -207,7 +208,7 @@ namespace DataAccess.Repositories.Profile
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return webResponse.OK("Register Successlly.");
+                return webResponse.OK(Convert.ToInt32(ResponseCode.Register_Success).ToString(),"You have successfully registered!");
             }
             catch (Exception ex)
             {

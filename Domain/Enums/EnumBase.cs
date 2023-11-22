@@ -29,7 +29,8 @@ namespace Domain.Enums
         Inactive = 0,
         Active = 1,
         Blacklisted = 2,
-        Suspended = 3
+        Suspended = 3,
+        PendingApproval =4
     }
 
     public enum QualificationType

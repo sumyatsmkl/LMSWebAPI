@@ -49,7 +49,7 @@ namespace WebAPI.Extensions
                 opt.UseInlineDefinitionsForEnums();
                 opt.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "ASP-Web-API-multi-layer",
+                    Title = "Health Education LMS API",
                     Version = "v1",
                     Description =
                         "To try out all the requests you have to be authorized (check the <b>Authorize</b> section)",
