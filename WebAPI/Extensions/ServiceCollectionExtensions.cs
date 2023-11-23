@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repositories.Profile;
+using DataAccess.Repositories.Role;
 using DataAccess.Repositories.Setup;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,11 +22,12 @@ namespace WebAPI.Extensions
 
             services.AddScoped<IProfileRepository, ProfileRepository>();
             services.AddScoped<ISystemCodeValueRepository, SystemCodeValueRepository>();
-          
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             
             services.AddScoped<ISystemCodeValueService, SystemCodeValueService>();
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             return services;
         }

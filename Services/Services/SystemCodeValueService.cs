@@ -1,7 +1,9 @@
-﻿using DataAccess.Repositories.Profile;
+﻿using DataAccess.DTO;
+using DataAccess.Repositories.Profile;
 using DataAccess.Repositories.Setup;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Utilities.Response;
 using Services.Services.Interfaces;
 
 namespace Services.Services
@@ -20,15 +22,10 @@ namespace Services.Services
             return await _setupRepository.Get(codeValueId);
         }
 
-        public async Task<IReadOnlyCollection<TSystemCodeValue>> GetLanguages()
+        public async Task<WebResponseContent> GetAllByCodeTypeId(int codeTypeId)
         {
-            return await _setupRepository.GetLanguages();
-        }
-
-        public async Task<IReadOnlyCollection<TSystemCodeValue>> GetCountries()
-        {
-            return await _setupRepository.GetCountries();
-        }
+            return await _setupRepository.GetAllByCodeTypeId(codeTypeId);
+        }     
 
         public async Task<TSystemCodeValue> UpdateSetup(TSystemCodeValue setupObj)
         {

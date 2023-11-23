@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Services.Services.Interfaces;
 using AutoMapper;
 using DataAccess.DTO;
+using System.Data;
+using System.Net;
+using Domain.Utilities.Response;
 
 namespace WebAPI.Controllers
 {
@@ -18,22 +21,13 @@ namespace WebAPI.Controllers
         {
             _setupService = setupService;
             _mapper = mapper;
-        }
+        }     
 
-        [HttpGet("getCountries")]
+        [HttpGet("getAllByCodeTypeId/{codeTypeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<SystemCodeValueDTO>>> GetCountries()
+        public async Task<WebResponseContent> GetAllByCodeTypeId(int codeTypeId)
         {
-            var countries = await _setupService.GetCountries();
-            return Ok(_mapper.Map<List<SystemCodeValueDTO>>(countries));
-        }
-
-        [HttpGet("getLanguages")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<SystemCodeValueDTO>>> GetLanguages()
-        {
-            var languages = await _setupService.GetLanguages();            
-            return Ok(_mapper.Map<List<SystemCodeValueDTO>>(languages));
+            return await _setupService.GetAllByCodeTypeId(codeTypeId);
         }
     }
 }

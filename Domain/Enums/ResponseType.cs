@@ -22,6 +22,7 @@ namespace Domain.Enums
         AuditSuccess,
         OperSuccess,
         RegisterSuccess,
+        RetrieveSuccess,
         ModifyPwdSuccess,
         EidtSuccess,
         DelSuccess,
@@ -41,6 +42,8 @@ namespace Domain.Enums
 
         Login_UserNameNotFound = 1006,
         Login_IncorrectPassword = 1007,
-        Login_Success = 1008
+        Login_Success = 1008,
+
+        DataRetrievalSuccess = 1009
     }
 }

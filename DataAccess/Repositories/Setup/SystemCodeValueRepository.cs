@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Domain.Enums;
+using System.Data;
+using System.Net;
+using Domain.Utilities.Response;
 
 namespace DataAccess.Repositories.Setup
 {
@@ -10,22 +13,18 @@ namespace DataAccess.Repositories.Setup
     {
         private readonly LMSDBContext _dbContext;
         public SystemCodeValueRepository(LMSDBContext context) => _dbContext = context;
-
+        WebResponseContent webResponse = new WebResponseContent();
         public async Task<IReadOnlyCollection<TSystemCodeValue>> GetAll()
         {
             return await _dbContext.TSystemCodeValues.ToListAsync();
-        }
+        }    
 
-        public async Task<IReadOnlyCollection<TSystemCodeValue>> GetCountries()
+        public async Task<WebResponseContent> GetAllByCodeTypeId(int codeTypeId)
         {
-            return await _dbContext.TSystemCodeValues.Where(x => x.CodeTypeId == (int)CodeTypeID.Country).ToListAsync();
+            var setups= await _dbContext.TSystemCodeValues.Where(x => x.CodeTypeId == codeTypeId).ToListAsync();
+            webResponse.Data = setups;
+            return webResponse.OK(ResponseType.RetrieveSuccess);
         }
-
-        public async Task<IReadOnlyCollection<TSystemCodeValue>> GetLanguages()
-        {
-            return await _dbContext.TSystemCodeValues.Where(x => x.CodeTypeId == (int)CodeTypeID.LanguageProficiency).ToListAsync();
-        }
-
         public async Task<TSystemCodeValue> Get(Guid codeValueId)
         {
             return await Find(codeValueId) ?? throw new Exception($"Does not exist.");

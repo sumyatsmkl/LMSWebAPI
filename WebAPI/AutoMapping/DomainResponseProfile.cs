@@ -9,7 +9,7 @@ namespace WebAPI.AutoMapping
         public DomainResponseProfile()
         {
             CreateMap<TSystemCodeValue, SystemCodeValueDTO>();
-            
+            CreateMap<TRole, RoleDTO>();
         }
     }
 }

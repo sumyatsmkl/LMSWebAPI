@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities;
+using Domain.Utilities.Response;
 
 namespace DataAccess.Repositories.Setup
 {
     public interface ISystemCodeValueRepository : IRepository<TSystemCodeValue>
-    {
-        Task<IReadOnlyCollection<TSystemCodeValue>> GetCountries();
-        Task<IReadOnlyCollection<TSystemCodeValue>> GetLanguages();
+    {       
+        Task<WebResponseContent> GetAllByCodeTypeId(int codeTypeId);
     }
 }

@@ -21,6 +21,8 @@ namespace Domain.Entities
         public Guid? LastUpdatedBy { get; set; }
         public DateTime? LastUpdatedDate { get; set; }
 
+        public bool? AllowSelfRegister { get; set; }
+
         public virtual TTenantSub TenantSub { get; set; } = null!;
         public virtual ICollection<TProfileRole> TProfileRoles { get; set; }
     }
