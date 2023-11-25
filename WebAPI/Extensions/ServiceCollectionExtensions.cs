@@ -34,12 +34,12 @@ namespace WebAPI.Extensions
 
         public static IServiceCollection AddAuthServices(this IServiceCollection services)
         {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
-            services.AddAuthorization(opt =>
-                opt.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .Build());
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            //services.AddAuthorization(opt =>
+            //    opt.FallbackPolicy = new AuthorizationPolicyBuilder()
+            //        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+            //        .RequireAuthenticatedUser()
+            //        .Build());
 
             return services;
         }
@@ -57,28 +57,28 @@ namespace WebAPI.Extensions
                         "To try out all the requests you have to be authorized (check the <b>Authorize</b> section)",
                 });
 
-                opt.AddSecurityDefinition("Bearer (value: SecretKey)", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the bearer scheme",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                });
+            //    opt.AddSecurityDefinition("Bearer (value: SecretKey)", new OpenApiSecurityScheme
+            //    {
+            //        Description = "JWT Authorization header using the bearer scheme",
+            //        Name = "Authorization",
+            //        In = ParameterLocation.Header,
+            //        Type = SecuritySchemeType.ApiKey,
+            //    });
 
-                opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer (value: SecretKey)",
-                            Type = ReferenceType.SecurityScheme,
-                        },
-                    },
-                    new List<string>()
-                },
-            });
+            //    opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+            //{
+            //    {
+            //        new OpenApiSecurityScheme
+            //        {
+            //            Reference = new OpenApiReference
+            //            {
+            //                Id = "Bearer (value: SecretKey)",
+            //                Type = ReferenceType.SecurityScheme,
+            //            },
+            //        },
+            //        new List<string>()
+            //    },
+            //});
             });
 
             return services;

@@ -6,6 +6,7 @@ using Services.Services.Interfaces;
 using AutoMapper;
 using DataAccess.DTO;
 using Domain.Utilities.Response;
+using System.Data;
 
 namespace WebAPI.Controllers
 {
@@ -33,5 +34,7 @@ namespace WebAPI.Controllers
         {
             return await _profileService.Register(registerData);
         }
+
+
     }
 }

@@ -26,7 +26,9 @@ namespace DataAccess.Repositories.Role
         public RoleRepository(LMSDBContext context) => _dbContext = context;
         WebResponseContent webResponse = new WebResponseContent();
         public async Task<IReadOnlyCollection<TRole>> GetAll()
-            => await _dbContext.TRoles.ToListAsync();
+        {
+            return await _dbContext.TRoles.ToListAsync();
+        }            
 
         public async Task<WebResponseContent> GetAllowSelfRegisterRoles()
         {

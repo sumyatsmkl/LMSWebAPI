@@ -32,12 +32,12 @@ namespace WebAPI.Controllers
             return await _roleService.GetAllowSelfRegisterRoles();
         }
 
-        //[HttpGet("getAllowRegisterRoles")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //public async Task<ActionResult<List<RoleDTO>>> GetAllRoles()
-        //{
-        //    var roles = await _roleService.GetAllRoles();
-        //    return Ok(_mapper.Map<List<RoleDTO>>(roles));
-        //}
+        [HttpGet("getAllRoles")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<RoleDTO>>> GetAllRoles()
+        {
+            var roles = await _roleService.GetAllRoles();
+            return Ok(_mapper.Map<List<RoleDTO>>(roles));
+        }
     }
 }

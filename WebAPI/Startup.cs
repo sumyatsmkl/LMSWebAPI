@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WebAPI.Extensions;
 
 
@@ -48,6 +51,23 @@ namespace WebAPI
                 builder.UseSqlServer(Configuration.GetConnectionString("DBConnection"));
             });
 
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("veryverysceret.....")),
+                    ValidateAudience = false,
+                    ValidateIssuer = false
+                };
+            });
+
             services.AddAutoMapper(typeof(Startup));
         }
 
@@ -74,6 +94,7 @@ namespace WebAPI
             //app.UseMiddleware<CustomCachingMiddleware>();
             //app.UseMiddleware<RequestValidationMiddleware>();
             app.UseCors();
+            app.UseAuthentication();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
 
           

@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using DataAccess.DTO;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Tools;
@@ -16,6 +20,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.Win32.SafeHandles;
 
 namespace DataAccess.Repositories.Profile
 {
@@ -124,27 +130,17 @@ namespace DataAccess.Repositories.Profile
                     return webResponse.Warning(ResponseCode.Login_IncorrectPassword.ToString(), "Incorrect password!");
                 }
 
-                //string token = JwtHelper.IssueJwt(new UserInfo()
-                //{
-                //    User_Id = user.User_Id,
-                //    UserName = user.UserName,
-                //    Role_Id = user.Role_Id
-                //});
-                //user.Token = token;
-                //webResponse.Data = new { token, userName = user.UserTrueName, img = user.HeadImageUrl };
-                //repository.Update(user, x => x.Token, true);
-                //UserContext.Current.LogOut(user.User_Id);
-                //loginInfo.Password = string.Empty;
-               
-                return webResponse.OK(Convert.ToInt32(ResponseCode.Login_Success).ToString(), "Login Successfully!!");
+                string token = CreateJwt(loginInfo);
+                profileResult.AccessToken = token;
+                _dbContext.TProfileAccounts.Update(profileResult);
+                _dbContext.SaveChanges();               
+                webResponse.Data = profileResult;
+
+                return webResponse.OK(Convert.ToInt32(ResponseCode.Login_Success).ToString(), "Login Successfully!!",profileResult);
             }
             catch (Exception ex)
             {
-                msg = ex.Message + ex.StackTrace;
-                //if (_context.GetService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>().IsDevelopment())
-                //{
-                //    throw new Exception(ex.Message + ex.StackTrace);
-                //}
+                msg = ex.Message + ex.StackTrace;               
                 return webResponse.Error(ResponseType.ServerError);
             }
             finally
@@ -220,5 +216,73 @@ namespace DataAccess.Repositories.Profile
 
             }
         }
+
+       
+        #region JwtAccessToken
+        private string CreateJwt(LoginInfo user)
+        {
+            TProfileRole profileRole;
+            TRole role = new TRole();
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("veryverysceret.....");
+            TProfileAccount profileResult = _dbContext.TProfileAccounts.Where(x => x.UserName == user.UserName).First();
+            if (HashPasswordHelper.VerifyPassword(user.Password, profileResult.Password))
+            {
+                profileRole = _dbContext.TProfileRoles.Where(x => x.ProfileId == profileResult.ProfileId).FirstOrDefault();
+                role = _dbContext.TRoles.Where(x => x.RoleId == profileRole.RoleId).FirstOrDefault();
+            }
+
+            var identity = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Role, role.RoleName),
+                new Claim(ClaimTypes.Name,$"{user.UserName}")
+            });
+
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = identity,
+                Expires = DateTime.Now.AddSeconds(10),
+                SigningCredentials = credentials
+            };
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            return jwtTokenHandler.WriteToken(token);
+        }
+        private string CreateRefreshToken()
+        {
+            var tokenBytes = RandomNumberGenerator.GetBytes(64);
+            var refreshToken = Convert.ToBase64String(tokenBytes);
+
+            var tokenInUser = _dbContext.TProfileAccounts
+                .Any(a => a.AccessToken == refreshToken);
+            if (tokenInUser)
+            {
+                return CreateRefreshToken();
+            }
+            return refreshToken;
+        }
+        private ClaimsPrincipal GetPrincipleFromExpiredToken(string token)
+        {
+            var key = Encoding.ASCII.GetBytes("veryverysceret.....");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateLifetime = false
+            };
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("This is Invalid Token");
+            return principal;
+
+        }
+        #endregion
+
     }
 }
