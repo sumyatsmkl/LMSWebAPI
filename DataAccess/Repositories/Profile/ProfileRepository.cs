@@ -232,6 +232,7 @@ namespace DataAccess.Repositories.Profile
         #region JwtAccessToken
         private SecurityToken CreateJwt(LoginInfo user)
         {
+            int expiredMinutes = Convert.ToInt32(_configuration["JWT:TokenValidityInMinutes"]);
             TProfileRole profileRole;
             TRole role = new TRole();
             var jwtTokenHandler = new JwtSecurityTokenHandler();
@@ -254,7 +255,7 @@ namespace DataAccess.Repositories.Profile
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = identity,
-                Expires = DateTime.Now.AddSeconds(60),                
+                Expires = DateTime.Now.AddMinutes(expiredMinutes),                
                 SigningCredentials = credentials
             };
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);            
