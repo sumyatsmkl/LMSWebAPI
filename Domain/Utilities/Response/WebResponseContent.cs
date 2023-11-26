@@ -23,6 +23,9 @@ namespace Domain.Utilities.Response
        
         public object Data { get; set; }
 
+        public string AccessToken { get; set; }
+        public DateTime TokenExpired { get; set; }
+
         public WebResponseContent OK()
         {
             this.Status = true;
@@ -39,6 +42,18 @@ namespace Domain.Utilities.Response
             this.Code = statusCode;
             this.Message = message;
             this.Data = data;
+            return this;
+        }
+
+        public WebResponseContent LoginOK(string loginToken,DateTime tokenExpired,string statusCode, string message = null, object data = null)
+        {
+            this.Status = true;
+            this.Code = statusCode;
+            this.Message = message;
+            this.Data = data;
+            this.TokenExpired = tokenExpired;
+            this.AccessToken = loginToken;
+
             return this;
         }
         public WebResponseContent OK(ResponseType responseType)

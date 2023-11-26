@@ -27,9 +27,15 @@ namespace DataAccess.Repositories.Role
         WebResponseContent webResponse = new WebResponseContent();
         public async Task<IReadOnlyCollection<TRole>> GetAll()
         {
-            return await _dbContext.TRoles.ToListAsync();
-        }            
+            return await _dbContext.TRoles.ToListAsync();         
+        }
 
+        public async Task<WebResponseContent> GetAllRoles()
+        {
+            var roles = await _dbContext.TRoles.ToListAsync();
+            webResponse.Data = roles;
+            return webResponse.OK(ResponseType.RetrieveSuccess);
+        }
         public async Task<WebResponseContent> GetAllowSelfRegisterRoles()
         {
             var roles = await _dbContext.TRoles.Where(x => x.AllowSelfRegister == true && x.Status == (int)CommonStatus.Active).ToListAsync();

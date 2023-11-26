@@ -9,6 +9,7 @@ using System.Net;
 using Domain.Utilities.Response;
 using Domain.Utilities.Request;
 using Services.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -32,12 +33,12 @@ namespace WebAPI.Controllers
             return await _roleService.GetAllowSelfRegisterRoles();
         }
 
+        [Authorize]
         [HttpGet("getAllRoles")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<RoleDTO>>> GetAllRoles()
+        public async Task<WebResponseContent> GetAllRoles()
         {
-            var roles = await _roleService.GetAllRoles();
-            return Ok(_mapper.Map<List<RoleDTO>>(roles));
+            return await _roleService.GetAllRoles();            
         }
     }
 }

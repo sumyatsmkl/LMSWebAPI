@@ -12,5 +12,6 @@ namespace DataAccess.Repositories.Role
     public interface IRoleRepository : IRepository<TRole>
     {
         Task<WebResponseContent> GetAllowSelfRegisterRoles();
+        Task<WebResponseContent> GetAllRoles();
     }
 }

@@ -9,7 +9,7 @@ namespace Services.Services.Interfaces
     {
         Task<WebResponseContent> GetAllowSelfRegisterRoles();
 
-        Task<IReadOnlyCollection<TRole>> GetAllRoles();
+        Task<WebResponseContent> GetAllRoles();
         Task<TRole> UpdateRole(TRole item);
     }
 }

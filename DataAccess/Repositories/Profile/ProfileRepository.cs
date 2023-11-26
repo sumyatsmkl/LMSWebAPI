@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Win32.SafeHandles;
@@ -28,8 +29,14 @@ namespace DataAccess.Repositories.Profile
     public class ProfileRepository:IProfileRepository
     {
         private readonly LMSDBContext _dbContext;
-        public ProfileRepository(LMSDBContext context) => _dbContext = context;
+        public ProfileRepository(LMSDBContext context, IConfiguration configuration) 
+        {
+            _dbContext = context;
+            _configuration = configuration;
+        }
         WebResponseContent webResponse = new WebResponseContent();
+
+        private readonly IConfiguration _configuration;
         public async Task<IReadOnlyCollection<TProfile>> GetAll()
             => await _dbContext.TProfiles.ToListAsync();
 
@@ -129,14 +136,18 @@ namespace DataAccess.Repositories.Profile
                 {
                     return webResponse.Warning(ResponseCode.Login_IncorrectPassword.ToString(), "Incorrect password!");
                 }
-
-                string token = CreateJwt(loginInfo);
-                profileResult.AccessToken = token;
+               
+                var token = CreateJwt(loginInfo);
+                profileResult.AccessToken = new JwtSecurityTokenHandler().WriteToken(token);
+                string generatedToken = new JwtSecurityTokenHandler().WriteToken(token);
+                DateTime expiredDate = token.ValidTo;
+             
                 _dbContext.TProfileAccounts.Update(profileResult);
                 _dbContext.SaveChanges();               
                 webResponse.Data = profileResult;
 
-                return webResponse.OK(Convert.ToInt32(ResponseCode.Login_Success).ToString(), "Login Successfully!!",profileResult);
+                return webResponse.LoginOK(generatedToken,expiredDate,Convert.ToInt32(ResponseCode.Login_Success).ToString(), "Login Successfully!!",profileResult);
+               
             }
             catch (Exception ex)
             {
@@ -219,7 +230,7 @@ namespace DataAccess.Repositories.Profile
 
        
         #region JwtAccessToken
-        private string CreateJwt(LoginInfo user)
+        private SecurityToken CreateJwt(LoginInfo user)
         {
             TProfileRole profileRole;
             TRole role = new TRole();
@@ -243,11 +254,11 @@ namespace DataAccess.Repositories.Profile
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = identity,
-                Expires = DateTime.Now.AddSeconds(10),
+                Expires = DateTime.Now.AddSeconds(60),                
                 SigningCredentials = credentials
             };
-            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-            return jwtTokenHandler.WriteToken(token);
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);            
+            return token;
         }
         private string CreateRefreshToken()
         {
@@ -281,6 +292,20 @@ namespace DataAccess.Repositories.Profile
                 throw new SecurityTokenException("This is Invalid Token");
             return principal;
 
+        }
+        private JwtSecurityToken CreateToken_V2(LoginInfo user)
+        {
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            _ = int.TryParse(_configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddMinutes(tokenValidityInMinutes),
+                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                );
+
+            return token;
         }
         #endregion
 

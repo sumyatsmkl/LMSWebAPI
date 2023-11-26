@@ -27,9 +27,9 @@ namespace Services.Services
             return await _roleRepository.Update(roleResult);
         }
 
-        public async Task<IReadOnlyCollection<TRole>> GetAllRoles()
+        public async Task<WebResponseContent> GetAllRoles()
         {
-            return await _roleRepository.GetAll();
+            return await _roleRepository.GetAllRoles();
         }
     }
 }
